@@ -19,20 +19,55 @@ def massProcessing():
     fileNames = askopenfilenames(parent=window)
     fileNames = sorted(fileNames)
     output = format(text2.get("1.0",'end-1c'))
+    sumRed_RAW = []
+    sumViol_RAW = []
     for i in range (len(fileNames)):
-        with open(output, 'a', newline='') as Kf:
-            writer = csv.writer(Kf, delimiter=';')
-            print(fileNames[i])
-            im = cv2.imread(fileNames[i])
-            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-            # im = im[:,:,0]  # 2 for Nikita, 0 for Inessa
-            im = im[:,:,1]  # 2 for Nikita, 0 for Inessa
-            # cv2.imshow('test', im)
-            # sum = np.sum(im[(200):(500),(200):(500)])
-            sum = np.sum(im[(0):(1080), (0):(1440)])
-            sum = np.uint32(sum)
-            print(sum)
-            writer.writerow([i,sum])
+        print(fileNames[i])
+        if (fileNames[i].find("_FIR_") != -1):
+            with open(output, 'a', newline='') as Kf:
+                writer = csv.writer(Kf, delimiter=';')
+                print(fileNames[i])
+                im = cv2.imread(fileNames[i])
+                im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+                # im = im[:,:,0]  # 2 for Nikita, 0 for Inessa
+                im = im[:, :, 1]  # 2 for Nikita, 0 for Inessa
+                # cv2.imshow('test', im)
+                # sum = np.sum(im[(200):(500),(200):(500)])
+                sumRed = np.sum(im[(0):(1080), (0):(1440)])
+                sumRed = np.uint32(sumRed)
+                sumRed_RAW.append(sumRed)
+                print(sumRed)
+        if (fileNames[i].find("_FIV_") != -1):
+            with open(output, 'a', newline='') as Kf:
+                writer = csv.writer(Kf, delimiter=';')
+                print(fileNames[i])
+                im = cv2.imread(fileNames[i])
+                im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+                # im = im[:,:,0]  # 2 for Nikita, 0 for Inessa
+                im = im[:, :, 1]  # 2 for Nikita, 0 for Inessa
+                # cv2.imshow('test', im)
+                # sum = np.sum(im[(200):(500),(200):(500)])
+                sumViol = np.sum(im[(0):(1080), (0):(1440)])
+                sumViol = np.uint32(sumViol)
+                sumViol_RAW.append(sumViol)
+                print(sumViol)
+
+        with open(output, 'a', newline='\n') as f:
+            for j in range(min(len(sumRed_RAW), len(sumViol_RAW))):
+                print(j)
+                writer = csv.writer(f, delimiter=' ')
+                writer.writerow([j, sumRed_RAW[j], sumViol_RAW[j]])
+    plt.figure()
+    plt.grid(True)
+    plt.xlabel('Time')
+    plt.ylabel('FIV, FIR, unitless')
+    plt.title('FIR, FIV vs time')
+    x = np.linspace(1, len(sumRed_RAW),len(sumRed_RAW))
+    plt.plot(x, sumRed_RAW, 'red', marker='o', label='FIR')
+    x = np.linspace(1, len(sumViol_RAW), len(sumViol_RAW))
+    plt.plot(x, sumViol_RAW, 'violet', marker='o', label='FIV')
+    plt.legend()
+    plt.show()
        # Kf.close()
     text1.insert(INSERT, 'Готово')
 
